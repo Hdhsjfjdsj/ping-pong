@@ -1,35 +1,47 @@
 import pygame
 import random
 
+WHITE = (255, 255, 255)
+
 class Ball:
-    def __init__(self, x, y, width, height, screen_width, screen_height):
-        self.original_x = x
-        self.original_y = y
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.screen_width = screen_width
-        self.screen_height = screen_height
-        self.velocity_x = random.choice([-5, 5])
-        self.velocity_y = random.choice([-3, 3])
+    def __init__(self, x, y, size):
+        self.screen_width = 800
+        self.screen_height = 600
+        self.rect = pygame.Rect(x, y, size, size)
+        self.speed_x = 7 * random.choice((1, -1))
+        self.speed_y = 7 * random.choice((1, -1))
 
-    def move(self):
-        self.x += self.velocity_x
-        self.y += self.velocity_y
+    def draw(self, screen):
+        pygame.draw.ellipse(screen, WHITE, self.rect)
 
-        if self.y <= 0 or self.y + self.height >= self.screen_height:
-            self.velocity_y *= -1
+    def move(self, player_paddle, ai_paddle):
+        self.rect.x += self.speed_x
+        
+        if self.rect.colliderect(player_paddle.rect):
+            self.speed_x *= -1
+            self.rect.left = player_paddle.rect.right
+            return 'paddle_hit'
+        if self.rect.colliderect(ai_paddle.rect):
+            self.speed_x *= -1
+            self.rect.right = ai_paddle.rect.left
+            return 'paddle_hit'
 
-    def check_collision(self, player, ai):
-        if self.rect().colliderect(player.rect()) or self.rect().colliderect(ai.rect()):
-            self.velocity_x *= -1
+        self.rect.y += self.speed_y
+        
+        if self.rect.top <= 0 or self.rect.bottom >= self.screen_height:
+            self.speed_y *= -1
+            return 'wall_hit'
+
+        if self.rect.left <= 0:
+            self.reset()
+            return 'ai_score'
+        if self.rect.right >= self.screen_width:
+            self.reset()
+            return 'player_score'
+            
+        return None
 
     def reset(self):
-        self.x = self.original_x
-        self.y = self.original_y
-        self.velocity_x *= -1
-        self.velocity_y = random.choice([-3, 3])
-
-    def rect(self):
-        return pygame.Rect(self.x, self.y, self.width, self.height)
+        self.rect.center = (self.screen_width / 2, self.screen_height / 2)
+        self.speed_y *= random.choice((1, -1))
+        self.speed_x *= random.choice((1, -1))

@@ -1,22 +1,29 @@
 import pygame
 
+WHITE = (255, 255, 255)
+
 class Paddle:
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.speed = 7
+    def __init__(self, x, y, width, height, speed):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.speed = speed
 
-    def move(self, dy, screen_height):
-        self.y += dy
-        self.y = max(0, min(self.y, screen_height - self.height))
+    def draw(self, screen):
+        pygame.draw.rect(screen, WHITE, self.rect)
 
-    def rect(self):
-        return pygame.Rect(self.x, self.y, self.width, self.height)
+    def move(self, direction, screen_height):
+        self.rect.y += self.speed * direction
+        if self.rect.top < 0:
+            self.rect.top = 0
+        if self.rect.bottom > screen_height:
+            self.rect.bottom = screen_height
 
-    def auto_track(self, ball, screen_height):
-        if ball.y < self.y:
-            self.move(-self.speed, screen_height)
-        elif ball.y > self.y + self.height:
-            self.move(self.speed, screen_height)
+    def ai_move(self, ball, screen_height):
+        if self.rect.centery < ball.rect.centery:
+            self.rect.y += self.speed
+        if self.rect.centery > ball.rect.centery:
+            self.rect.y -= self.speed
+        
+        if self.rect.top < 0:
+            self.rect.top = 0
+        if self.rect.bottom > screen_height:
+            self.rect.bottom = screen_height
