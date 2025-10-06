@@ -22,7 +22,7 @@ class Paddle:
             self.rect.y += self.speed
         if self.rect.centery > ball.rect.centery:
             self.rect.y -= self.speed
-        
+
         if self.rect.top < 0:
             self.rect.top = 0
         if self.rect.bottom > screen_height:
